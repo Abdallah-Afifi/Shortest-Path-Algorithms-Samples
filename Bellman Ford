@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+
+using namespace std;
+
+const int INF = numeric_limits<int>::max();
+
+// Structure to represent an edge in the graph
+struct Edge {
+    int from, to, weight;
+    Edge(int f, int t, int w) : from(f), to(t), weight(w) {}
+};
+
+// Implementation of Bellman-Ford algorithm
+bool bellmanFord(vector<Edge>& edges, int start, vector<int>& dist) {
+    int n = dist.size();
+    dist.assign(n, INF);
+    dist[start] = 0;
+
+    // Relax edges repeatedly
+    for (int i = 0; i < n - 1; ++i) {
+        for (const Edge& e : edges) {
+            if (dist[e.from] < INF && dist[e.from] + e.weight < dist[e.to]) {
+                dist[e.to] = dist[e.from] + e.weight;
+            }
+        }
+    }
+
+    // Check for negative cycles
+    for (const Edge& e : edges) {
+        if (dist[e.from] < INF && dist[e.from] + e.weight < dist[e.to]) {
+            // Negative cycle detected
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int main() {
+    // Example usage
+    int n = 5; // Number of vertices
+    vector<Edge> edges = {
+        {0, 1, 2},
+        {0, 2, 4},
+        {1, 3, 3},
+        {2, 3, 1},
+        {3, 4, 5}
+    };
+
+    vector<int> dist;
+    bool hasNegativeCycle = bellmanFord(edges, 0, dist);
+
+    if (hasNegativeCycle) {
+        // Print the shortest distances from the source
+        for (int i = 0; i < n; ++i) {
+            cout << "Shortest distance from 0 to " << i << ": " << dist[i] << endl;
+        }
+    } else {
+        cout << "Negative cycle detected, cannot compute shortest paths." << endl;
+    }
+
+    return 0;
+}
+
